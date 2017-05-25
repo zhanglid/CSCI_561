@@ -1,4 +1,4 @@
 Right
-Left
+NoOp
 Suck
-Suck
+NoOp

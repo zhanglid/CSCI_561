@@ -1,0 +1,7 @@
+move_to_2
+move_to_2
+move_to_1
+move_to_2
+move_to_2
+keep
+keep
