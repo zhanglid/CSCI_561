@@ -1,0 +1,4 @@
+A,Clean
+B,Clean
+B,Dirty
+B,Clean
