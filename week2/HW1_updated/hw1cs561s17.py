@@ -13,6 +13,12 @@ class Node(object):
         self.adjacent_cost = []
         self.is_visited = False
 
+    def __cmp__(self, other):
+        '''
+        This used to make sure we call it in alphabet order when using heapq in UCS
+        '''
+        return self.val > other.val
+
 
 # UCS search for the d
 def ucs(s_node, d_val, fuel):
@@ -38,6 +44,8 @@ def ucs(s_node, d_val, fuel):
 
             # only put nodes to the queue when fuel is enough
             if cost_edge <= fuel - cost and not next_node.is_visited:
+                # python will compare tuple from the first pos, if it is the same then the next pos.
+                # this makes sure we will process the node in alphabet order when their cost are the same
                 heappush(h, (cost + cost_edge, next_node, copy.deepcopy(path)))
 
     return None
