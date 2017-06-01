@@ -17,6 +17,8 @@ class Node(object):
         '''
         This used to make sure we call it in alphabet order when using heapq in UCS
         '''
+        if not other:
+            return -1
         if self.val == other.val:
             return 0
         elif self.val > other.val:
