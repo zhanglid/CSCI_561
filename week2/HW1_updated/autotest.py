@@ -18,5 +18,7 @@ for input_file_name in input_list:
         right_output = f.readline()
     print output
     print right_output
+    if output != right_output:
+        print '!!!!!!!!!!!!!!!!!!!!!'
     print output == right_output
     print '--------------------------'
