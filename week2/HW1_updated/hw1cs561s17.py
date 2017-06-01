@@ -1,7 +1,6 @@
 import re
 from collections import deque
 from heapq import heappop, heappush
-import copy
 import sys
 
 
@@ -12,12 +11,28 @@ class Node(object):
         self.adjacent_list = []
         self.adjacent_cost = []
         self.is_visited = False
+        self.parent = self
 
     def __cmp__(self, other):
         '''
         This used to make sure we call it in alphabet order when using heapq in UCS
         '''
-        return self.val > other.val
+        if self.val == other:
+            return 0
+        elif self.val < other:
+            return 1
+        else:
+            return -1
+
+
+# build the path by find its parent recursively
+def build_path(node):
+    path = []
+    while node.parent != node:
+        path.insert(0, node.val)
+        node = node.parent
+    path.insert(0, node.val)
+    return path
 
 
 # UCS search for the d
@@ -25,18 +40,18 @@ def ucs(s_node, d_val, fuel):
     # init the priority queue
     s_node.is_visited = True
     h = []
-    heappush(h, (0, s_node, []))
+    heappush(h, (0, s_node))
 
     # loop until the stack is empty
     while len(h) > 0:
 
         # deque one node to process
-        cost, node, path = heappop(h)
-        path.append(node.val)
+        cost, node = heappop(h)
         node.is_visited = True
 
         # check if we meet the goal
         if node.val == d_val:
+            path = build_path(node)
             return path, fuel - cost
 
         # update the queue in alphabet order
@@ -44,9 +59,10 @@ def ucs(s_node, d_val, fuel):
 
             # only put nodes to the queue when fuel is enough
             if cost_edge <= fuel - cost and not next_node.is_visited:
+                next_node.parent = node
                 # python will compare tuple from the first pos, if it is the same then the next pos.
                 # this makes sure we will process the node in alphabet order when their cost are the same
-                heappush(h, (cost + cost_edge, next_node, copy.deepcopy(path)))
+                heappush(h, (cost + cost_edge, next_node))
 
     return None
 
@@ -55,26 +71,26 @@ def ucs(s_node, d_val, fuel):
 def dfs(s_node, d_val, fuel):
     # init the stack for dfs
     s_node.is_visited = True
-    stack = [(s_node, fuel, [])]
+    stack = [(s_node, fuel)]
 
     # loop until the stack is empty
     while len(stack) > 0:
 
         # deque one node to process
-        node, fuel_left, path = stack.pop()
-        path.append(node.val)
+        node, fuel_left = stack.pop()
         node.is_visited = True
 
         # check if we meet the goal
         if node.val == d_val:
+            path = build_path(node)
             return path, fuel_left
 
         # update the queue
         for next_node, cost in sorted(zip(node.adjacent_list, node.adjacent_cost), key=lambda t: t[0].val, reverse=True):
-
             # only put nodes to the queue when fuel is enough
             if cost <= fuel_left and not next_node.is_visited:
-                stack.append((next_node, fuel_left - cost, copy.deepcopy(path)))
+                next_node.parent = node
+                stack.append((next_node, fuel_left - cost))
 
     return None
 
@@ -83,18 +99,18 @@ def dfs(s_node, d_val, fuel):
 def bfs(s_node, d_val, fuel):
     # init the queue for bfs
     s_node.is_visited = True
-    queue = deque([(s_node, fuel, [])])
+    queue = deque([(s_node, fuel)])
 
     # loop until the queue is empty
     while len(queue) > 0:
 
         # deque one node to process
-        node, fuel_left, path = queue.popleft()
-        path.append(node.val)
+        node, fuel_left = queue.popleft()
         node.is_visited = True
 
         # check if we meet the goal
         if node.val == d_val:
+            path = build_path(node)
             return path, fuel_left
 
         # update the queue
@@ -102,7 +118,8 @@ def bfs(s_node, d_val, fuel):
 
             # only put nodes to the queue when fuel is enough
             if cost <= fuel_left and not next_node.is_visited:
-                queue.append((next_node, fuel_left - cost, copy.deepcopy(path)))
+                next_node.parent = node
+                queue.append((next_node, fuel_left - cost))
 
     return None
 
