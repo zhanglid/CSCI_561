@@ -1,6 +1,6 @@
 import re
 from collections import deque
-from heapq import heappop, heappush
+from heapq import heappop, heappush, heapify
 import sys
 
 
@@ -17,9 +17,9 @@ class Node(object):
         '''
         This used to make sure we call it in alphabet order when using heapq in UCS
         '''
-        if self.val == other:
+        if self.val == other.val:
             return 0
-        elif self.val < other:
+        elif self.val > other.val:
             return 1
         else:
             return -1
@@ -55,13 +55,22 @@ def ucs(s_node, d_val, fuel):
             return path, fuel - cost
 
         # update the queue in alphabet order
-        for next_node, cost_edge in sorted(zip(node.adjacent_list, node.adjacent_cost), key=lambda t: t[0].val):
+        for next_node, cost_edge in zip(node.adjacent_list, node.adjacent_cost):
 
             # only put nodes to the queue when fuel is enough
             if cost_edge <= fuel - cost and not next_node.is_visited:
-                next_node.parent = node
+
+                # a path to the node has already been found waiting to be expand, we have to check whether update it
+                if next_node in map(lambda t: t[1], h):
+                    idx = map(lambda t: t[1], h).index(next_node)
+                    if cost + cost_edge < h[idx][0]:
+                        h[idx] = h[-1]      # if need update, we delete it
+                        heapify(h)
+                    else:
+                        continue
                 # python will compare tuple from the first pos, if it is the same then the next pos.
                 # this makes sure we will process the node in alphabet order when their cost are the same
+                next_node.parent = node
                 heappush(h, (cost + cost_edge, next_node))
 
     return None
