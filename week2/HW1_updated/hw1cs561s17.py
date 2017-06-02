@@ -68,7 +68,8 @@ def ucs(s_node, d_val, fuel):
                 # a path to the node has already been found waiting to be expand, we have to check whether update it
                 if next_node in map(lambda t: t[1], h):
                     idx = map(lambda t: t[1], h).index(next_node)
-                    if (cost + cost_edge, node) < (h[idx][0], next_node.parent):
+                    # if (cost + cost_edge, node) < (h[idx][0], next_node.parent):
+                    if cost + cost_edge < h[idx][0]:
                         del h[idx]
                         heapify(h)
                     else:
@@ -204,7 +205,6 @@ if __name__ == '__main__':
         output = path_string + ' ' + str(fuel)
     else:
         output = 'No Path'
-    print output
     # write output to the file
     with open('output.txt', 'w') as f:
         f.write(output)
