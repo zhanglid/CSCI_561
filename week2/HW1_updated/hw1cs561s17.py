@@ -26,6 +26,9 @@ class Node(object):
         else:
             return -1
 
+    def __repr__(self):
+        return self.val
+
 
 # build the path by find its parent recursively
 def build_path(node):
@@ -65,8 +68,8 @@ def ucs(s_node, d_val, fuel):
                 # a path to the node has already been found waiting to be expand, we have to check whether update it
                 if next_node in map(lambda t: t[1], h):
                     idx = map(lambda t: t[1], h).index(next_node)
-                    if cost + cost_edge < h[idx][0]:
-                        h[idx] = h[-1]      # if need update, we delete it
+                    if (cost + cost_edge, node) < (h[idx][0], next_node.parent):
+                        del h[idx]
                         heapify(h)
                     else:
                         continue
@@ -117,7 +120,6 @@ def bfs(s_node, d_val, fuel):
 
         # deque one node to process
         node, fuel_left = queue.popleft()
-        node.is_visited = True
 
         # check if we meet the goal
         if node.val == d_val:
@@ -130,6 +132,7 @@ def bfs(s_node, d_val, fuel):
             # only put nodes to the queue when fuel is enough
             if cost <= fuel_left and not next_node.is_visited:
                 next_node.parent = node
+                next_node.is_visited = True
                 queue.append((next_node, fuel_left - cost))
 
     return None
@@ -201,7 +204,7 @@ if __name__ == '__main__':
         output = path_string + ' ' + str(fuel)
     else:
         output = 'No Path'
-
+    print output
     # write output to the file
     with open('output.txt', 'w') as f:
         f.write(output)
