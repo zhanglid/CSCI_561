@@ -43,16 +43,17 @@ def build_path(node):
 # UCS search for the d
 def ucs(s_node, d_val, fuel):
     # init the priority queue
-    s_node.is_visited = True
     h = []
     heappush(h, (0, s_node))
-
+    heap_set = set()
+    heap_set.add(s_node)
     # loop until the stack is empty
     while len(h) > 0:
 
         # deque one node to process
         cost, node = heappop(h)
         node.is_visited = True
+        heap_set.remove(node)
 
         # check if we meet the goal
         if node.val == d_val:
@@ -66,18 +67,24 @@ def ucs(s_node, d_val, fuel):
             if cost_edge <= fuel - cost and not next_node.is_visited:
 
                 # a path to the node has already been found waiting to be expand, we have to check whether update it
-                if next_node in map(lambda t: t[1], h):
-                    idx = map(lambda t: t[1], h).index(next_node)
+
+                if next_node in heap_set:
+                    node_in_heap = map(lambda t: t[1], h)
+                    idx = node_in_heap.index(next_node)
                     # if (cost + cost_edge, node) < (h[idx][0], next_node.parent):
                     if cost + cost_edge < h[idx][0]:
-                        del h[idx]
+                        # del h[idx]
+                        next_node.parent = node
+                        h[idx] = (cost + cost_edge, next_node)
                         heapify(h)
+                        continue
                     else:
                         continue
                 # python will compare tuple from the first pos, if it is the same then the next pos.
                 # this makes sure we will process the node in alphabet order when their cost are the same
                 next_node.parent = node
                 heappush(h, (cost + cost_edge, next_node))
+                heap_set.add(next_node)
 
     return None
 
