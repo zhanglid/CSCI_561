@@ -1,3 +1,9 @@
+'''
+Name: Zhangliang Dong
+ID: 7086935462
+Email: zhanglid@usc.edu
+'''
+
 import re
 from collections import deque
 from heapq import heappop, heappush, heapify
@@ -26,9 +32,6 @@ class Node(object):
         else:
             return -1
 
-    def __repr__(self):
-        return self.val
-
 
 # build the path by find its parent recursively
 def build_path(node):
@@ -47,8 +50,9 @@ def ucs(s_node, d_val, fuel):
     heappush(h, (0, s_node))
     heap_set = set()
     heap_set.add(s_node)
+
     # loop until the stack is empty
-    while len(h) > 0:
+    while h:
 
         # deque one node to process
         cost, node = heappop(h)
@@ -73,7 +77,6 @@ def ucs(s_node, d_val, fuel):
                     idx = node_in_heap.index(next_node)
                     # if (cost + cost_edge, node) < (h[idx][0], next_node.parent):
                     if cost + cost_edge < h[idx][0]:
-                        # del h[idx]
                         next_node.parent = node
                         h[idx] = (cost + cost_edge, next_node)
                         heapify(h)
@@ -92,11 +95,10 @@ def ucs(s_node, d_val, fuel):
 # DFS search for the d
 def dfs(s_node, d_val, fuel):
     # init the stack for dfs
-    s_node.is_visited = True
     stack = [(s_node, fuel)]
 
     # loop until the stack is empty
-    while len(stack) > 0:
+    while stack:
 
         # deque one node to process
         node, fuel_left = stack.pop()
@@ -108,7 +110,7 @@ def dfs(s_node, d_val, fuel):
             return path, fuel_left
 
         # update the queue
-        for next_node, cost in sorted(zip(node.adjacent_list, node.adjacent_cost), key=lambda t: t[0].val, reverse=True):
+        for next_node, cost in sorted(zip(node.adjacent_list, node.adjacent_cost), reverse=True):
             # only put nodes to the queue when fuel is enough
             if cost <= fuel_left and not next_node.is_visited:
                 next_node.parent = node
@@ -124,7 +126,7 @@ def bfs(s_node, d_val, fuel):
     queue = deque([(s_node, fuel)])
 
     # loop until the queue is empty
-    while len(queue) > 0:
+    while queue:
 
         # deque one node to process
         node, fuel_left = queue.popleft()
@@ -135,7 +137,7 @@ def bfs(s_node, d_val, fuel):
             return path, fuel_left
 
         # update the queue
-        for next_node, cost in sorted(zip(node.adjacent_list, node.adjacent_cost), key=lambda t: t[0].val):
+        for next_node, cost in sorted(zip(node.adjacent_list, node.adjacent_cost)):
 
             # only put nodes to the queue when fuel is enough
             if cost <= fuel_left and not next_node.is_visited:
@@ -192,23 +194,15 @@ if __name__ == '__main__':
                 node.adjacent_cost.append(edge_cost)
 
     # select the search type
-    if search_type == 'DFS':
-        result = dfs(start_node, end_node_val, fuel)
-    elif search_type == 'BFS':
-        result = bfs(start_node, end_node_val, fuel)
-    else:
-        result = ucs(start_node, end_node_val, fuel)
+    search_type_dict = {'DFS': dfs, 'BFS': bfs, 'UCS': ucs}
+    result = search_type_dict[search_type](start_node, end_node_val, fuel)
 
     # check the result if we find the path
     if result:
         path, fuel = result
 
         # generate the output string
-        path_string = ''
-        for w in path[:-1]:
-            path_string += w
-            path_string += '-'
-        path_string += path[-1]
+        path_string = ''.join(map(lambda t: t + '-', path[:-1])) + path[-1]
         output = path_string + ' ' + str(fuel)
     else:
         output = 'No Path'
