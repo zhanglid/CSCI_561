@@ -14,8 +14,7 @@ import sys
 class Node(object):
     def __init__(self, x):
         self.val = x
-        self.adjacent_list = []
-        self.adjacent_cost = []
+        self.adjacent = []
         self.is_visited = False
         self.parent = self
 
@@ -23,14 +22,10 @@ class Node(object):
         '''
         This used to make sure we call it in alphabet order when using heapq in UCS
         '''
-        if not other:
-            return -1
         if self.val == other.val:
             return 0
-        elif self.val > other.val:
-            return 1
         else:
-            return -1
+            return 1 if self.val > other.val else -1
 
 
 # build the path by find its parent recursively
@@ -65,7 +60,7 @@ def ucs(s_node, d_val, fuel):
             return path, fuel - cost
 
         # update the queue in alphabet order
-        for next_node, cost_edge in zip(node.adjacent_list, node.adjacent_cost):
+        for next_node, cost_edge in node.adjacent:
 
             # only put nodes to the queue when fuel is enough
             if cost_edge <= fuel - cost and not next_node.is_visited:
@@ -80,16 +75,12 @@ def ucs(s_node, d_val, fuel):
                         next_node.parent = node
                         h[idx] = (cost + cost_edge, next_node)
                         heapify(h)
-                        continue
-                    else:
-                        continue
+                    continue
                 # python will compare tuple from the first pos, if it is the same then the next pos.
                 # this makes sure we will process the node in alphabet order when their cost are the same
                 next_node.parent = node
                 heappush(h, (cost + cost_edge, next_node))
                 heap_set.add(next_node)
-
-    return None
 
 
 # DFS search for the d
@@ -110,13 +101,11 @@ def dfs(s_node, d_val, fuel):
             return path, fuel_left
 
         # update the queue
-        for next_node, cost in sorted(zip(node.adjacent_list, node.adjacent_cost), reverse=True):
+        for next_node, cost in sorted(node.adjacent, reverse=True):
             # only put nodes to the queue when fuel is enough
             if cost <= fuel_left and not next_node.is_visited:
                 next_node.parent = node
                 stack.append((next_node, fuel_left - cost))
-
-    return None
 
 
 # BFS search for the d
@@ -137,7 +126,7 @@ def bfs(s_node, d_val, fuel):
             return path, fuel_left
 
         # update the queue
-        for next_node, cost in sorted(zip(node.adjacent_list, node.adjacent_cost)):
+        for next_node, cost in sorted(node.adjacent):
 
             # only put nodes to the queue when fuel is enough
             if cost <= fuel_left and not next_node.is_visited:
@@ -145,21 +134,17 @@ def bfs(s_node, d_val, fuel):
                 next_node.is_visited = True
                 queue.append((next_node, fuel_left - cost))
 
-    return None
 
 if __name__ == '__main__':
     file_name = sys.argv[2]  # get file name from parameters
 
     # read in the file and extract info
     with open(file_name, 'r') as f:
-        search_type = f.readline().replace('\n', '')        # get the search type: DFS, BFS, UCS
-        fuel = int(f.readline().replace('\n', ''))          # get fuel
-        start_node_val = f.readline().replace('\n', '')     # start point
-        end_node_val = f.readline().replace('\n', '')       # end point
-
-        # split the edge info
-        edge_match = re.compile('[\S^:\-]+-\d+')
-        edge_split = re.compile('([\S^:\-]+)(?:-)(\d+)')
+        lineslist = f.read().splitlines()
+        search_type = lineslist[0]        # get the search type: DFS, BFS, UCS
+        fuel = int(lineslist[1])          # get fuel
+        start_node_val = lineslist[2]     # start point
+        end_node_val = lineslist[3]       # end point
 
         # construct start point and end point
         start_node = Node(start_node_val)
@@ -168,9 +153,10 @@ if __name__ == '__main__':
         # build  the set for node
         node_set = {start_node_val: start_node, end_node_val: end_node}
 
-        for line in f:
+        for line in lineslist[4:]:
             # read in the value of the node
-            node_val = re.compile('((\S)+)(?::.)').search(line).group(1)
+            line_split_list = line.replace(' ', '').split(':')
+            node_val = line_split_list[0]
 
             # get the node from node name
             if node_val not in node_set:
@@ -178,20 +164,21 @@ if __name__ == '__main__':
             node = node_set[node_val]
 
             # process each edge to build the graph
-            edge_list = re.findall(edge_match, line)
+            edge_list = line_split_list[1].split(',')
             for edge in edge_list:
-                re_result = re.search(edge_split, edge)     # extract edge name and cost
-                edge_node_val = re_result.group(1)
-                edge_cost = int(re_result.group(2))
+                split_result = edge.split('-')    # extract edge name and cost
+                edge_node_val = split_result[0]
+                edge_cost = int(split_result[1])
 
                 # get node from name
                 if edge_node_val not in node_set:
-                    node_set[edge_node_val] = Node(edge_node_val)
-                edge_node = node_set[edge_node_val]
+                    edge_node = Node(edge_node_val)
+                    node_set[edge_node_val] = edge_node
+                else:
+                    edge_node = node_set[edge_node_val]
 
                 # append to the list
-                node.adjacent_list.append(edge_node)
-                node.adjacent_cost.append(edge_cost)
+                node.adjacent.append((edge_node, edge_cost))
 
     # select the search type
     search_type_dict = {'DFS': dfs, 'BFS': bfs, 'UCS': ucs}
@@ -206,6 +193,7 @@ if __name__ == '__main__':
         output = path_string + ' ' + str(fuel)
     else:
         output = 'No Path'
+
     # write output to the file
     with open('output.txt', 'w') as f:
         f.write(output)
