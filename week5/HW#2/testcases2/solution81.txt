@@ -1,0 +1,26 @@
+SXGLCS, G, 0, -inf, -inf, inf
+L6TLV9, B, 1, inf, -inf, inf
+1VI75M, G, 2, -18, -inf, inf
+L6TLV9, B, 1, -18, -inf, -18
+1VI75M, R, 2, -15, -inf, -18
+L6TLV9, B, 1, -18, -inf, -18
+ARWCHY, G, 2, -18, -inf, -18
+L6TLV9, B, 1, -18, -inf, -18
+ARWCHY, R, 2, -15, -inf, -18
+L6TLV9, B, 1, -18, -inf, -18
+L8SFE1, R, 2, -15, -inf, -18
+L6TLV9, B, 1, -18, -inf, -18
+SXGLCS, G, 0, -18, -18, inf
+L6TLV9, R, 1, inf, -18, inf
+1VI75M, B, 2, -20, -18, inf
+L6TLV9, R, 1, -20, -18, inf
+SXGLCS, G, 0, -18, -18, inf
+L8SFE1, B, 1, inf, -18, inf
+1VI75M, G, 2, -18, -18, inf
+L8SFE1, B, 1, -18, -18, inf
+SXGLCS, G, 0, -18, -18, inf
+L8SFE1, R, 1, inf, -18, inf
+1VI75M, B, 2, -20, -18, inf
+L8SFE1, R, 1, -20, -18, inf
+SXGLCS, G, 0, -18, -18, inf
+L6TLV9, B, -18
